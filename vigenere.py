@@ -19,37 +19,36 @@ def main():
     print("\n")
 
 def vigenere(message, key, direction):
+    if direction == "encrypt":
+        direction = 1
+    elif direction == "decrypt":
+        direction = -1
+    else:
+        print("invalid direction")
+        return ""
 
-    # make message and key lowercase for consistency
-    message = message.lower()
-    key = key.lower()
+    mlen = len(message)
 
-    #adjust key for message length
-    while len(key) < len(message):
-        key = key + key
+    # make message and key uppercase for consistency
+    message = message.upper()
+    key = key.upper()
     
+    #adjust key for message length
+    key *= int(mlen / len(key) + 1)
 
-    result = ""
-    for i in range(len(message)):
+    result = [" "]*mlen
+    for i in range(mlen):
         # ignore non-letter characters
-        if not message[i].isalpha():
-            result = result + message[i]
-            key = key[:i] + " " + key[i:]
-        else:
-            messageLetter = message[i]
-            keyLetter = key[i]
-
+        if message[i].isalpha():
             # row and column refers to the vigenere square
-            row = ALPHABET.find(messageLetter)
-            column = ALPHABET.find(keyLetter)
-            if direction == "encrypt":
-                result = result + ALPHABET[(row+column) % 26]
-            elif direction == "decrypt":
-                result = result + ALPHABET[(row-column) % 26]
-            else:
-                print("invalid direction")
-                return ""
-    return result
+            row = (ord(message[i])&63) - 1
+            column = (ord(key[i])&63) - 1
+            column *= -1
+            result[i] = chr(ord('a') + (row + column)%26)
+        else:
+            key = key[:i] + " " + key[i:]
+            result[i] = message[i]
+    return "".join(result)
     
 if __name__ == "__main__":
     main()
